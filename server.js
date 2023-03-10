@@ -48,7 +48,7 @@ function userPrompt() {
       else if(answers.action === 'add an employee') {
         addEmployee();
       }
-      else if(answers.action === 'updated an employee role') {
+      else if(answers.action === 'update an employee role') {
         updateEmployee();
       }
       
@@ -76,7 +76,7 @@ function viewRoles() {
 
 function viewEmployees() {
     db.query(
-        'SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id;', function (err, res) {
+        'SELECT employee.id, employee.first_name, employee.last_name, roles.title, roles.salary, department.name AS department, CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN roles ON employee.roles_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id;', function (err, res) {
     if (err) throw err;    
     console.log('VIEW EMPLOYEES');
     console.table(res);
@@ -94,10 +94,10 @@ function addDepartment() {
       }
 
     ]).then(answers => {
-        db.query('INSERT INTO department (name) VALUES ?', [answers.department], function (err, res) {
+        db.query('INSERT INTO department (name) VALUES (?)', answers.department, function (err, res) {
             if (err) throw err;    
             console.log('Department Added');
-            console.table(res);
+            userPrompt();
         })
       });
     }
@@ -129,8 +129,8 @@ function addRole() {
     ]).then(answers => {
         db.query('INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)', [answers.title, answers.salary, answers.department] , function (err, res) {
             if (err) throw err;    
-            console.log('Department Added');
-            console.table(res);
+            console.log('Role Added');
+            userPrompt();
         })
       });
     })
@@ -171,15 +171,52 @@ function addEmployee() {
       }
 
     ]).then(answers => {
-        db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answers.firstname, answers.lastname, answers.role, answers.manager] , function (err, res) {
+        db.query('INSERT INTO employee (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)', [answers.firstname, answers.lastname, answers.role, answers.manager] , function (err, res) {
             if (err) throw err;    
-            console.log('Department Added');
-            console.table(res);
+            console.log('Employee Added');
+            userPrompt();
         })
       });
     })
     })
     }
+
+function updateEmployee() {
+    db.query('SELECT * FROM employee', function (err, res) {
+        const employees = res.map(function (employee){
+            return {name: employee.first_name + " " + employee.last_name, value: employee.id}
+        })
+    db.query('SELECT * FROM roles', function (err, res) {
+        const roles = res.map(function (role){
+            return {name: role.title, value: role.id}
+        })
+    inquirer.prompt ([
+
+      {
+        type: "list",
+        name: "employee",
+        message: "Which employee would you like to update?",
+        choices: employees
+      },
+      {
+        type: "list",
+        name: "role",
+        message: "Select the employee's new role",
+        choices: roles
+      }
+
+    ]).then(answers => {
+        db.query('UPDATE employee SET roles_id = (?) WHERE employee.id = (?)', [answers.role, answers.employee] , function (err, res) {
+            if (err) throw err;    
+            console.log('Employee Updated');
+            userPrompt();
+        })
+      });
+    })
+    })
+    }    
+
+userPrompt();   
 
 /*GIVEN a command-line application that accepts user input
 WHEN I start the application

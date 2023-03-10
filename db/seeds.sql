@@ -6,18 +6,18 @@ VALUES ("Sales"),
        ("HR"),
        ("Finance"); 
 
-INSERT INTO roles (department_id, title, salary)
-VALUES (1, "Account Executive", 200000),
-       (1, "Sales Manager", 250000),
-       (2, "Developer", 200000),
-       (2, "Engineering Manager", 250000),
-       (3, "HR Partner", 100000),
-       (4, "Analyst", 150000);     
+INSERT INTO roles (title, salary, department_id)
+VALUES ("Sales Manager", 250000, 1), 
+       ("Account Executive", 200000, 1),
+       ("Engineering Manager", 250000, 2),
+       ("Developer", 200000, 2),
+       ("HR Partner", 100000, 3),
+       ("Analyst", 150000, 4);     
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES (1, "John", "Smith", 1, NULL),
-       (2, "Bob", "Patterson", 1),
-       (3, "Juan", "Martinez", NULL),
-       (4, "Mike", "Thompson", 3),
-       (5, "Jane", "Doe", NULL),
-       (6, "Jacky", "Chen", NULL);
+INSERT INTO employee (first_name, last_name, roles_id, manager_id)
+VALUES ("John", "Smith", 1, NULL),
+       ("Bob", "Patterson", 2, 1),
+       ("Juan", "Martinez", 3, NULL),
+       ("Mike", "Thompson", 4, 3),
+       ("Jane", "Doe", 5, NULL),
+       ("Jacky", "Chen", 6, NULL);
